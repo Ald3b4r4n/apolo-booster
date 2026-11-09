@@ -18,6 +18,8 @@
     <string name="home_safety_title">Ouça com cuidado</string>
     <string name="home_safety_body">Ganho digital aumenta a pressão sonora e pode distorcer. Comece baixo e suba aos poucos.</string>
     <string name="home_system_volume">Volume do sistema</string>
+    <string name="home_maximize_volume">Volume do sistema no máximo</string>
+    <string name="home_maximize_hint">Garante que o boost parta do volume mais alto possível ao ativar.</string>
     <string name="home_turbo">Turbo de hardware (experimental)</string>
     <string name="home_turbo_hint">Tenta usar passos de volume ocultos do aparelho. Pode não funcionar em todos os modelos.</string>
 
@@ -33,6 +35,15 @@
     <string name="diag_subtitle">O que este aparelho suporta de verdade</string>
     <string name="diag_copy">Copiar relatório</string>
     <string name="diag_copied">Relatório copiado</string>
+    <string name="diag_reconnect">Reconectar efeitos</string>
+    <string name="diag_reconnected">Cadeia de efeitos recriada</string>
+    <string name="diag_telemetry">Aplicação real</string>
+    <string name="diag_tone">Teste de áudio</string>
+    <string name="diag_tone_play">Tocar tom de teste</string>
+    <string name="diag_tone_stop">Parar tom</string>
+    <string name="diag_tone_hint">O tom usa o mesmo efeito do app, anexado à sessão de um player interno. Suba o ganho: se o volume não mudar, o aparelho bloqueia o processamento.</string>
+    <string name="diag_tone_gain">Ganho do tom</string>
+    <string name="diag_tone_failed">O aparelho não permitiu criar o player de teste</string>
 
     <string name="about_title">Sobre</string>
     <string name="about_body">Apolo Booster aplica processamento digital no mix de saída do Android. Nenhum app sem root aumenta o ganho físico do alto-falante: o que fazemos é elevar a loudness com compressão do framework.</string>

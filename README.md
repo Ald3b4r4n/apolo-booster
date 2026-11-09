@@ -41,7 +41,9 @@ hardware suporta.
 | 🎛️ | **Equalizador** com as bandas e a faixa de ganho reais do aparelho, 5 presets e curvas interpoladas |
 | 🔊 | **BassBoost** independente, com intensidade de 0 a 100% |
 | 🛰️ | **Turbo de hardware (experimental)** — sonda passos de volume ocultos que alguns OEMs expõem |
-| 🩺 | **Diagnóstico copiável** — modelo, API, efeitos disponíveis, bandas, volume e resultado do turbo |
+| 🩺 | **Diagnóstico copiável** — modelo, API, efeitos, telemetria de aplicação real e resultado do turbo |
+| 🎧 | **Teste de tom** — prova auditiva de que o processamento funciona no seu aparelho |
+| 🔁 | **Reconexão automática** — recria a cadeia de efeitos quando a música começa a tocar |
 | 🔒 | **Zero rede** — sem `INTERNET`, sem anúncios, sem analytics, sem coleta |
 | 🎨 | **Adaptive icon** vetorial, layer monochrome para ícones temáticos e fontes Outfit + Manrope |
 | 📱 | **Responsivo** — bottom bar no celular, navigation rail em tablet e paisagem |

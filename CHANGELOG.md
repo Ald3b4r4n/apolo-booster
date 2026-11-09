@@ -3,6 +3,23 @@
 Todas as versões publicadas deste projeto seguem [SemVer](https://semver.org/lang/pt-BR/).
 Cada release do GitHub carrega o APK assinado e o `SHA256SUMS.txt`.
 
+## [0.2.0] — 2026-11-09
+
+### Adicionado
+
+- **Telemetria de aplicação real** no Diagnóstico: criado, com controle, habilitado, ganho alvo,
+  status do `setTargetGain`, efeitos ativos, música ativa e saída atual.
+- **Teste de tom** com o mesmo `LoudnessEnhancer`, anexado à sessão de um player interno —
+  prova auditiva de que o processamento funciona (ou não) no aparelho.
+- Botão **Reconectar efeitos** e reconexão automática quando a música começa a tocar.
+- Opção **Volume do sistema no máximo** ao ativar (ligada por padrão).
+
+### Nota técnica
+
+Anexar efeitos à sessão 0 (mix global) está depreciado no Android moderno. Em aparelhos onde o
+OEM remove o efeito da cadeia, o objeto é criado mas não processa nada. Esta versão torna isso
+visível em vez de silencioso.
+
 ## [0.1.1] — 2026-11-09
 
 ### Corrigido

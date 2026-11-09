@@ -68,6 +68,7 @@ fun HomeScreen(
     onEnabledChange: (Boolean) -> Unit,
     onPercentChange: (Int) -> Unit,
     onTurboChange: (Boolean) -> Unit,
+    onMaximizeVolumeChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -169,6 +170,28 @@ fun HomeScreen(
                 color = Gold,
                 trackColor = Outline,
             )
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = stringResource(R.string.home_maximize_volume),
+                        style = MaterialTheme.typography.bodyLarge,
+                        color = TextPrimary,
+                    )
+                    Text(
+                        text = stringResource(R.string.home_maximize_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = TextMuted,
+                    )
+                }
+                Switch(
+                    checked = state.maximizeVolume,
+                    onCheckedChange = onMaximizeVolumeChange,
+                )
+            }
         }
 
         SectionCard {
