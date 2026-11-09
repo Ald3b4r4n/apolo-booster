@@ -149,6 +149,13 @@ fun DiagnosticsScreen(
             Text(stringResource(R.string.diag_reconnect))
         }
 
+        OutlinedButton(
+            onClick = { BoostController.compareBypass(5) },
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Text(stringResource(R.string.diag_compare))
+        }
+
         SectionCard(title = "Efeitos disponíveis") {
             StatRow("LoudnessEnhancer", statusLabel(support.loudness))
             StatRow(

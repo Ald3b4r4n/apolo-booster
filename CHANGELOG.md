@@ -3,6 +3,21 @@
 Todas as versões publicadas deste projeto seguem [SemVer](https://semver.org/lang/pt-BR/).
 Cada release do GitHub carrega o APK assinado e o `SHA256SUMS.txt`.
 
+## [0.3.0] — 2026-11-09
+
+### Adicionado
+
+- **Módulos independentes**: Loudness, Equalizador e Graves agora têm switches próprios.
+  Default: só Loudness ligado; EQ e BassBoost desligados.
+- **Comparação A/B**: botão que desliga todos os efeitos por 5 segundos e religa, para ouvir
+  a diferença real sem placebo.
+
+### Corrigido
+
+- Equalizador e BassBoost não são mais habilitados sem uso. Em aparelhos com DSP do fabricante
+  (Xiaomi MiSound, Dolby, Dirac), habilitar esses efeitos insere atenuação de headroom e o
+  resultado final ficava **mais baixo** que o original.
+
 ## [0.2.0] — 2026-11-09
 
 ### Adicionado

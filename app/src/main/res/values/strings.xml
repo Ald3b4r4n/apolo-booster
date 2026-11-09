@@ -18,6 +18,15 @@
     <string name="home_safety_title">Ouça com cuidado</string>
     <string name="home_safety_body">Ganho digital aumenta a pressão sonora e pode distorcer. Comece baixo e suba aos poucos.</string>
     <string name="home_system_volume">Volume do sistema</string>
+    <string name="home_modules">Módulos de processamento</string>
+    <string name="home_modules_hint">Ligue um por vez e compare. Em alguns aparelhos, equalizador e graves inserem atenuação.</string>
+    <string name="home_module_loudness">Loudness (ganho)</string>
+    <string name="home_module_loudness_hint">Efeito principal de volume.</string>
+    <string name="home_module_equalizer">Equalizador</string>
+    <string name="home_module_equalizer_hint">Curva por bandas. Pode atenuar o volume global.</string>
+    <string name="home_module_bass">Reforço de graves</string>
+    <string name="home_module_bass_hint">BassBoost nativo. Pode atenuar o volume global.</string>
+    <string name="diag_compare">Comparar sem efeitos (5 s)</string>
     <string name="home_maximize_volume">Volume do sistema no máximo</string>
     <string name="home_maximize_hint">Garante que o boost parta do volume mais alto possível ao ativar.</string>
     <string name="home_turbo">Turbo de hardware (experimental)</string>

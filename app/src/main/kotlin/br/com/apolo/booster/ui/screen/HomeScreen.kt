@@ -69,6 +69,9 @@ fun HomeScreen(
     onPercentChange: (Int) -> Unit,
     onTurboChange: (Boolean) -> Unit,
     onMaximizeVolumeChange: (Boolean) -> Unit,
+    onUseLoudnessChange: (Boolean) -> Unit,
+    onUseEqualizerChange: (Boolean) -> Unit,
+    onUseBassChange: (Boolean) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -194,6 +197,32 @@ fun HomeScreen(
             }
         }
 
+        SectionCard(title = stringResource(R.string.home_modules)) {
+            Text(
+                text = stringResource(R.string.home_modules_hint),
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted,
+            )
+            ModuleRow(
+                label = stringResource(R.string.home_module_loudness),
+                hint = stringResource(R.string.home_module_loudness_hint),
+                checked = state.useLoudness,
+                onCheckedChange = onUseLoudnessChange,
+            )
+            ModuleRow(
+                label = stringResource(R.string.home_module_equalizer),
+                hint = stringResource(R.string.home_module_equalizer_hint),
+                checked = state.useEqualizer,
+                onCheckedChange = onUseEqualizerChange,
+            )
+            ModuleRow(
+                label = stringResource(R.string.home_module_bass),
+                hint = stringResource(R.string.home_module_bass_hint),
+                checked = state.useBass,
+                onCheckedChange = onUseBassChange,
+            )
+        }
+
         SectionCard {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -247,6 +276,34 @@ fun HomeScreen(
         }
 
         Spacer(Modifier.height(8.dp))
+    }
+}
+
+@Composable
+private fun ModuleRow(
+    label: String,
+    hint: String,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.bodyLarge,
+                color = TextPrimary,
+            )
+            Text(
+                text = hint,
+                style = MaterialTheme.typography.bodyMedium,
+                color = TextMuted,
+            )
+        }
+        Switch(checked = checked, onCheckedChange = onCheckedChange)
     }
 }
 

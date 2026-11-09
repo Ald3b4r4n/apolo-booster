@@ -177,6 +177,9 @@ private fun ScreenHost(
             onPercentChange = BoostController::setPercent,
             onTurboChange = BoostController::setTurbo,
             onMaximizeVolumeChange = BoostController::setMaximizeVolume,
+            onUseLoudnessChange = BoostController::setUseLoudness,
+            onUseEqualizerChange = BoostController::setUseEqualizer,
+            onUseBassChange = BoostController::setUseBass,
             modifier = modifier,
         )
 

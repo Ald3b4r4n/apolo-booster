@@ -23,6 +23,9 @@ data class BoostState(
     val turbo: Boolean = false,
     val turboActive: Boolean = false,
     val maximizeVolume: Boolean = true,
+    val useLoudness: Boolean = true,
+    val useEqualizer: Boolean = false,
+    val useBass: Boolean = false,
     val support: EffectSupport = EffectSupport(),
     val systemVolume: Int = 0,
     val systemMaxVolume: Int = 1,
@@ -46,6 +49,9 @@ object BoostController {
     private const val KEY_EQ_PRESET = "eq_preset"
     private const val KEY_BASS = "bass"
     private const val KEY_MAXIMIZE = "maximize_volume"
+    private const val KEY_USE_LOUDNESS = "use_loudness"
+    private const val KEY_USE_EQUALIZER = "use_equalizer"
+    private const val KEY_USE_BASS = "use_bass"
 
     private const val GLOBAL_SESSION = 0
     private const val WATCHDOG_MS = 2_000L
@@ -98,6 +104,9 @@ object BoostController {
             eqPreset = prefs.getInt(KEY_EQ_PRESET, EqPresets.FLAT),
             bassStrength = prefs.getInt(KEY_BASS, 0).coerceIn(0, 100),
             maximizeVolume = prefs.getBoolean(KEY_MAXIMIZE, true),
+            useLoudness = prefs.getBoolean(KEY_USE_LOUDNESS, true),
+            useEqualizer = prefs.getBoolean(KEY_USE_EQUALIZER, false),
+            useBass = prefs.getBoolean(KEY_USE_BASS, false),
             turbo = false,
             support = support,
             systemVolume = runCatching { manager.getStreamVolume(AudioManager.STREAM_MUSIC) }.getOrDefault(0),
@@ -156,6 +165,44 @@ object BoostController {
         update { it.copy(bassStrength = clamped) }
         prefs().edit().putInt(KEY_BASS, clamped).apply()
         if (_state.value.enabled) applyBass()
+    }
+
+    fun setUseLoudness(enabled: Boolean) = setModule(KEY_USE_LOUDNESS, enabled) { it.copy(useLoudness = enabled) }
+
+    fun setUseEqualizer(enabled: Boolean) = setModule(KEY_USE_EQUALIZER, enabled) { it.copy(useEqualizer = enabled) }
+
+    fun setUseBass(enabled: Boolean) = setModule(KEY_USE_BASS, enabled) { it.copy(useBass = enabled) }
+
+    private fun setModule(key: String, enabled: Boolean, transform: (BoostState) -> BoostState) {
+        update(transform)
+        prefs().edit().putBoolean(key, enabled).apply()
+        if (_state.value.enabled) {
+            releaseEffects()
+            applyAll()
+        }
+    }
+
+    /** Desliga tudo por alguns segundos para comparação auditiva honesta. */
+    fun compareBypass(seconds: Int = 5) {
+        if (!_state.value.enabled) return
+        handler.removeCallbacks(watchdog)
+        releaseEffects()
+        update {
+            it.copy(
+                telemetry = it.telemetry.copy(
+                    lastEvent = "bypass de ${seconds}s",
+                    loudnessEnabled = false,
+                    equalizerEnabled = false,
+                    bassEnabled = false,
+                ),
+            )
+        }
+        handler.postDelayed({
+            if (_state.value.enabled) {
+                applyAll()
+                handler.postDelayed(watchdog, WATCHDOG_MS)
+            }
+        }, seconds * 1_000L)
     }
 
     fun setMaximizeVolume(enabled: Boolean) {
@@ -240,6 +287,7 @@ object BoostController {
             appendLine("== Sessão ==")
             appendLine("Volume do sistema: ${st.systemVolume}/${st.systemMaxVolume}")
             appendLine("Volume máximo automático: ${status(st.maximizeVolume)}")
+            appendLine("Módulos: loudness=${status(st.useLoudness)} eq=${status(st.useEqualizer)} bass=${status(st.useBass)}")
             appendLine("Turbo: ${turboLabel(st)}")
             appendLine("Boost: ${st.percent}% (~+${GainMath.percentToDb(st.percent)} dB)")
             appendLine("Boost ativo: ${status(st.enabled)}")
@@ -261,9 +309,9 @@ object BoostController {
             return
         }
         if (st.maximizeVolume) maximizeSystemVolume()
-        applyGain()
-        applyEqualizer()
-        applyBass()
+        if (st.useLoudness) applyGain()
+        if (st.useEqualizer) applyEqualizer()
+        if (st.useBass) applyBass()
         refreshTelemetry("cadeia aplicada")
     }
 
