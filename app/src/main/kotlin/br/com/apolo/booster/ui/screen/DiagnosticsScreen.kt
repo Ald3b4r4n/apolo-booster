@@ -135,7 +135,7 @@ fun DiagnosticsScreen(
             StatRow("Equalizer habilitado", statusLabel(telemetry.equalizerEnabled))
             StatRow("BassBoost habilitado", statusLabel(telemetry.bassEnabled))
             StatRow("Música ativa", statusLabel(telemetry.musicActive))
-            StatRow("Saída", telemetry.outputRoute)
+            StatRow("Saídas disponíveis", telemetry.outputRoute)
             StatRow("Reconexões", "${telemetry.reattachCount} · ${telemetry.lastEvent}")
         }
 

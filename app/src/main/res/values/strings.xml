@@ -46,7 +46,7 @@
     <string name="diag_copied">Relatório copiado</string>
     <string name="diag_reconnect">Reconectar efeitos</string>
     <string name="diag_reconnected">Cadeia de efeitos recriada</string>
-    <string name="diag_telemetry">Aplicação real</string>
+    <string name="diag_telemetry">Estado dos efeitos</string>
     <string name="diag_tone">Teste de áudio</string>
     <string name="diag_tone_play">Tocar tom de teste</string>
     <string name="diag_tone_stop">Parar tom</string>

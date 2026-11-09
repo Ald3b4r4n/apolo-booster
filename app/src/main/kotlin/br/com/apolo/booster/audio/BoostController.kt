@@ -271,7 +271,7 @@ object BoostController {
             appendLine("DynamicsProcessing: ${status(s.dynamics)}")
             appendLine("Bandas: ${s.eqCenterFreqs.joinToString(", ")} Hz")
             appendLine()
-            appendLine("== Aplicação real ==")
+            appendLine("== Estado dos efeitos (sem medição de saída) ==")
             appendLine("Loudness criado: ${status(t.loudnessCreated)}")
             appendLine("Loudness com controle: ${status(t.loudnessControl)}")
             appendLine("Loudness habilitado: ${status(t.loudnessEnabled)}")
@@ -279,9 +279,11 @@ object BoostController {
             appendLine("Loudness status do set: ${t.loudnessSetStatus}")
             appendLine("Equalizer com controle: ${status(t.equalizerControl)}")
             appendLine("Equalizer habilitado: ${status(t.equalizerEnabled)}")
+            appendLine("Equalizer configurado (dB): ${st.eqGains.joinToString(", ")}")
             appendLine("BassBoost habilitado: ${status(t.bassEnabled)}")
+            appendLine("BassBoost configurado: ${st.bassStrength}%")
             appendLine("Música ativa: ${status(t.musicActive)}")
-            appendLine("Saída: ${t.outputRoute}")
+            appendLine("Saídas disponíveis: ${t.outputRoute}")
             appendLine("Reconexões: ${t.reattachCount} (${t.lastEvent})")
             appendLine()
             appendLine("== Sessão ==")
@@ -289,7 +291,7 @@ object BoostController {
             appendLine("Volume máximo automático: ${status(st.maximizeVolume)}")
             appendLine("Módulos: loudness=${status(st.useLoudness)} eq=${status(st.useEqualizer)} bass=${status(st.useBass)}")
             appendLine("Turbo: ${turboLabel(st)}")
-            appendLine("Boost: ${st.percent}% (~+${GainMath.percentToDb(st.percent)} dB)")
+            appendLine("Boost solicitado: ${st.percent}% (+${GainMath.percentToDb(st.percent)} dB de ganho alvo)")
             appendLine("Boost ativo: ${status(st.enabled)}")
         }
     }
@@ -325,15 +327,20 @@ object BoostController {
 
     private fun applyGain() {
         val st = _state.value
-        if (!st.enabled || !st.support.loudness) return
-        val effect = loudness ?: createLoudness() ?: return
+        if (!st.enabled || !st.useLoudness || !st.support.loudness) return
         val millibels = GainMath.clampToDevice(
             GainMath.percentToMillibels(st.percent),
             GainMath.MAX_GAIN_MB,
         )
+        if (millibels == 0) {
+            runCatching { loudness?.setEnabled(false) }
+            refreshTelemetry("loudness em bypass")
+            return
+        }
+        val effect = loudness ?: createLoudness() ?: return
         val setResult = runCatching { effect.setTargetGain(millibels) }
         val setStatus = if (setResult.isSuccess) 0 else -1
-        val enableStatus = runCatching { effect.setEnabled(true) }.getOrDefault(Int.MIN_VALUE)
+        val enableStatus = runCatching { effect.setEnabled(setResult.isSuccess) }.getOrDefault(Int.MIN_VALUE)
         update {
             it.copy(
                 telemetry = it.telemetry.copy(
@@ -348,7 +355,12 @@ object BoostController {
 
     private fun applyEqualizer() {
         val st = _state.value
-        if (!st.enabled || !st.support.equalizer) return
+        if (!st.enabled || !st.useEqualizer || !st.support.equalizer) return
+        if (st.eqGains.all { it == 0 }) {
+            runCatching { equalizer?.setEnabled(false) }
+            refreshTelemetry()
+            return
+        }
         val effect = equalizer ?: createEqualizer() ?: return
         runCatching {
             st.eqGains.forEachIndexed { index, gain ->
@@ -366,10 +378,17 @@ object BoostController {
 
     private fun applyBass() {
         val st = _state.value
-        if (!st.enabled || !st.support.bassBoost) return
+        if (!st.enabled || !st.useBass || !st.support.bassBoost) return
+        if (st.bassStrength == 0) {
+            runCatching { bassBoost?.setEnabled(false) }
+            refreshTelemetry()
+            return
+        }
         val effect = bassBoost ?: createBass() ?: return
         runCatching {
-            effect.setStrength((st.bassStrength * 10).coerceIn(0, 1000).toShort())
+            if (effect.strengthSupported) {
+                effect.setStrength((st.bassStrength * 10).toShort())
+            }
             effect.setEnabled(true)
         }
         refreshTelemetry()
