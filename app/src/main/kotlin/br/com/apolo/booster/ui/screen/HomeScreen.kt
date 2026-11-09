@@ -1,4 +1,4 @@
-package br.com.apolo.booster.ui.screen
+﻿package br.com.apolo.booster.ui.screen
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.horizontalScroll
@@ -56,10 +56,10 @@ import br.com.apolo.booster.ui.theme.TextPrimary
 import kotlin.math.roundToInt
 
 private val presets = listOf(
-    "Difusor" to 180,
-    "Fone" to 160,
-    "Bluetooth" to 200,
-    "Máx" to 250,
+    R.string.home_preset_auto to 180,
+    R.string.home_preset_headphone to 160,
+    R.string.home_preset_bluetooth to 200,
+    R.string.home_preset_max to 250,
 )
 
 @Composable
@@ -128,7 +128,7 @@ fun HomeScreen(
                 FilterChip(
                     selected = state.percent == preset.second,
                     onClick = { onPercentChange(preset.second) },
-                    label = { Text(preset.first) },
+                    label = { Text(stringResource(preset.first)) },
                 )
             }
         }

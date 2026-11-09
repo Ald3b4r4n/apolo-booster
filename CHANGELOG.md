@@ -3,6 +3,21 @@
 Todas as versões publicadas deste projeto seguem [SemVer](https://semver.org/lang/pt-BR/).
 Cada release do GitHub carrega o APK assinado e o `SHA256SUMS.txt`.
 
+## [0.1.1] — 2026-11-09
+
+### Corrigido
+
+- O foreground service reaplica o boost quando o processo é recriado e se encerra quando o
+  estado está desligado.
+- O turbo de hardware não é mais restaurado como "ligado" sem ter sido aplicado de fato.
+- `DynamicsProcessing` só é consultado em API 28+ (guard de lint).
+- Locale explícito na formatação das frequências do equalizador.
+
+### Alterado
+
+- Presets e rótulos do boost agora vêm de recursos de string (PT-BR centralizado).
+- Removida a dependência não usada de DataStore e recursos órfãos.
+
 ## [0.1.0] — 2026-11-09
 
 Primeira versão pública, focada no caminho crítico de áudio.

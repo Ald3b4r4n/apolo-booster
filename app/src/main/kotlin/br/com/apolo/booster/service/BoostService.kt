@@ -1,4 +1,4 @@
-package br.com.apolo.booster.service
+﻿package br.com.apolo.booster.service
 
 import android.app.Notification
 import android.app.NotificationChannel
@@ -59,6 +59,11 @@ class BoostService : Service() {
 
         startForegroundSafe()
         foregroundStarted = true
+        if (BoostController.state.value.enabled) {
+            BoostController.setEnabled(true)
+        } else {
+            stopSelf()
+        }
         return START_STICKY
     }
 
@@ -156,3 +161,4 @@ class BoostService : Service() {
         }
     }
 }
+

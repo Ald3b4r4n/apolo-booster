@@ -1,4 +1,4 @@
-package br.com.apolo.booster.ui.components
+﻿package br.com.apolo.booster.ui.components
 
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -18,9 +18,11 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import br.com.apolo.booster.R
 import br.com.apolo.booster.audio.GainMath
 import br.com.apolo.booster.ui.theme.Ember
 import br.com.apolo.booster.ui.theme.Gold
@@ -116,7 +118,7 @@ fun BoostDial(
                 color = if (enabled) TextPrimary else TextMuted,
             )
             Text(
-                text = "BOOST",
+                text = stringResource(R.string.home_boost_label),
                 style = MaterialTheme.typography.labelSmall,
                 letterSpacing = 5.sp,
                 color = TextMuted,
@@ -129,3 +131,4 @@ fun BoostDial(
         }
     }
 }
+

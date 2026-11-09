@@ -1,4 +1,4 @@
-package br.com.apolo.booster.ui.screen
+﻿package br.com.apolo.booster.ui.screen
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +25,7 @@ import br.com.apolo.booster.ui.components.ScreenHeader
 import br.com.apolo.booster.ui.components.SectionCard
 import br.com.apolo.booster.ui.theme.Gold
 import br.com.apolo.booster.ui.theme.TextMuted
-import br.com.apolo.booster.ui.theme.TextPrimary
+import java.util.Locale
 import kotlin.math.roundToInt
 
 private val eqPresetLabels = listOf(
@@ -147,6 +147,6 @@ private fun BandRow(
 
 private fun frequencyLabel(frequency: Int): String = when {
     frequency <= 0 -> "—"
-    frequency >= 1000 -> String.format("%.1f kHz", frequency / 1000f)
+    frequency >= 1000 -> String.format(Locale.getDefault(), "%.1f kHz", frequency / 1000f)
     else -> "$frequency Hz"
 }

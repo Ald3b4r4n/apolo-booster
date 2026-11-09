@@ -6,8 +6,8 @@ plugins {
 }
 
 // Versao controlada por propriedade (-Papolo.versionName=0.1.0) para o CI usar a tag.
-val apoloVersionName = providers.gradleProperty("apolo.versionName").orElse("0.1.0").get()
-val apoloVersionCode = providers.gradleProperty("apolo.versionCode").orElse("1").get().toInt()
+val apoloVersionName = providers.gradleProperty("apolo.versionName").orElse("0.1.1").get()
+val apoloVersionCode = providers.gradleProperty("apolo.versionCode").orElse("101").get().toInt()
 
 val keystorePropsFile = rootProject.file("keystore.properties")
 val keystoreProps = Properties().apply {
@@ -102,7 +102,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.compose)
     implementation(libs.androidx.core)
     implementation(libs.androidx.core.splashscreen)
-    implementation(libs.androidx.datastore.preferences)
     implementation(libs.kotlinx.coroutines.android)
 
     debugImplementation(libs.androidx.compose.ui.tooling)

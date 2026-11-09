@@ -1,9 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="apolo_navy">#070B1A</color>
-    <color name="apolo_surface">#101A33</color>
-    <color name="apolo_gold">#FFB020</color>
-    <color name="apolo_ember">#FF6B35</color>
-    <color name="apolo_text">#F5F7FB</color>
-    <color name="apolo_text_muted">#9AA6BF</color>
 </resources>

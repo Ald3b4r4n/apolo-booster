@@ -1,6 +1,7 @@
 ﻿package br.com.apolo.booster.audio
 
 import android.content.Context
+import android.content.SharedPreferences
 import android.media.AudioManager
 import android.media.audiofx.BassBoost
 import android.media.audiofx.Equalizer
@@ -25,10 +26,10 @@ data class BoostState(
 )
 
 /**
- * Dono unico dos AudioEffects do processo.
+ * Dono único dos AudioEffects do processo.
  *
- * Sessao 0 = mix global de saida: pega musica, video, jogos e audio de outros apps
- * quando o OEM permite. Todo acesso e defensivo: efeito indisponivel nao derruba nada.
+ * Sessão 0 = mix global de saída: pega música, vídeo, jogos e áudio de outros apps
+ * quando o OEM permite. Todo acesso é defensivo: efeito indisponível não derruba nada.
  */
 object BoostController {
 
@@ -38,7 +39,6 @@ object BoostController {
     private const val KEY_EQ = "eq"
     private const val KEY_EQ_PRESET = "eq_preset"
     private const val KEY_BASS = "bass"
-    private const val KEY_TURBO = "turbo"
 
     private const val GLOBAL_SESSION = 0
 
@@ -57,7 +57,7 @@ object BoostController {
         appContext = context.applicationContext
 
         val support = EffectProbe.probe()
-        val prefs = appContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+        val prefs = prefs()
         val savedEq = readEq(prefs, support.eqBands)
         val manager = audioManager()
 
@@ -68,11 +68,14 @@ object BoostController {
             eqGains = savedEq,
             eqPreset = prefs.getInt(KEY_EQ_PRESET, EqPresets.FLAT),
             bassStrength = prefs.getInt(KEY_BASS, 0).coerceIn(0, 100),
-            turbo = prefs.getBoolean(KEY_TURBO, false),
+            turbo = false,
             support = support,
             systemVolume = runCatching { manager.getStreamVolume(AudioManager.STREAM_MUSIC) }.getOrDefault(0),
             systemMaxVolume = runCatching { manager.getStreamMaxVolume(AudioManager.STREAM_MUSIC) }.getOrDefault(1),
         )
+
+        // Processo recriado com boost ligado: reaplica imediatamente.
+        if (_state.value.enabled) applyAll()
     }
 
     fun setEnabled(enabled: Boolean) {
@@ -133,7 +136,6 @@ object BoostController {
                 it.copy(turbo = false, turboActive = false, systemVolume = currentVolume())
             }
         }
-        prefs().edit().putBoolean(KEY_TURBO, enabled).apply()
     }
 
     fun refreshSystemVolume() {
@@ -144,20 +146,20 @@ object BoostController {
         val st = _state.value
         val s = st.support
         return buildString {
-            appendLine("Apolo Booster â€” diagnostico")
+            appendLine("Apolo Booster — diagnóstico")
             appendLine("Aparelho: ${Build.MANUFACTURER} ${Build.MODEL}")
             appendLine("Android: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT})")
             appendLine()
-            appendLine("LoudnessEnhancer: ${yesNo(s.loudness)}")
-            appendLine("Equalizer: ${if (s.equalizer) "disponivel (${s.eqBands} bandas, ${s.eqMinLevel}..${s.eqMaxLevel} mB)" else "indisponivel"}")
-            appendLine("BassBoost: ${yesNo(s.bassBoost)}")
-            appendLine("DynamicsProcessing: ${yesNo(s.dynamics)}")
+            appendLine("LoudnessEnhancer: ${status(s.loudness)}")
+            appendLine("Equalizer: ${if (s.equalizer) "disponível (${s.eqBands} bandas, ${s.eqMinLevel}..${s.eqMaxLevel} mB)" else "indisponível"}")
+            appendLine("BassBoost: ${status(s.bassBoost)}")
+            appendLine("DynamicsProcessing: ${status(s.dynamics)}")
             appendLine("Bandas: ${s.eqCenterFreqs.joinToString(", ")} Hz")
             appendLine()
             appendLine("Volume do sistema: ${st.systemVolume}/${st.systemMaxVolume}")
             appendLine("Turbo: ${turboLabel(st)}")
             appendLine("Boost: ${st.percent}% (~+${GainMath.percentToDb(st.percent)} dB)")
-            appendLine("Boost ativo: ${yesNo(st.enabled)}")
+            appendLine("Boost ativo: ${status(st.enabled)}")
         }
     }
 
@@ -167,12 +169,12 @@ object BoostController {
         else -> "solicitado (aparelho recusou)"
     }
 
-    private fun yesNo(value: Boolean) = if (value) "disponivel" else "indisponivel"
+    private fun status(value: Boolean) = if (value) "disponível" else "indisponível"
 
     private fun applyAll() {
         val st = _state.value
         if (!st.support.hasAnyBoost) {
-            update { it.copy(enabled = false, error = "Efeitos de audio indisponiveis neste aparelho") }
+            update { it.copy(enabled = false, error = "Efeitos de áudio indisponíveis neste aparelho") }
             return
         }
         applyGain()
@@ -251,14 +253,15 @@ object BoostController {
         bassBoost = null
     }
 
-    private fun readEq(prefs: android.content.SharedPreferences, bands: Int): List<Int> {
+    private fun readEq(prefs: SharedPreferences, bands: Int): List<Int> {
         if (bands <= 0) return emptyList()
         val raw = prefs.getString(KEY_EQ, null) ?: return List(bands) { 0 }
         val parsed = raw.split(',').mapNotNull { it.trim().toIntOrNull() }
         return List(bands) { index -> parsed.getOrElse(index) { 0 }.coerceIn(-12, 12) }
     }
 
-    private fun prefs() = appContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
+    private fun prefs(): SharedPreferences =
+        appContext.getSharedPreferences(PREFS, Context.MODE_PRIVATE)
 
     private fun audioManager(): AudioManager =
         appContext.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -273,4 +276,3 @@ object BoostController {
         _state.value = block(_state.value)
     }
 }
-

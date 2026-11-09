@@ -4,6 +4,7 @@ import android.media.audiofx.AudioEffect
 import android.media.audiofx.BassBoost
 import android.media.audiofx.Equalizer
 import android.media.audiofx.LoudnessEnhancer
+import android.os.Build
 
 /**
  * Capacidades reais do aparelho. Cada efeito e criado e liberado na hora:
@@ -64,11 +65,15 @@ object EffectProbe {
             bass = false
         }
 
-        val dynamics = runCatching {
-            AudioEffect.queryEffects()?.any {
-                it.type == AudioEffect.EFFECT_TYPE_DYNAMICS_PROCESSING
-            } == true
-        }.getOrDefault(false)
+        val dynamics = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+            runCatching {
+                AudioEffect.queryEffects()?.any {
+                    it.type == AudioEffect.EFFECT_TYPE_DYNAMICS_PROCESSING
+                } == true
+            }.getOrDefault(false)
+        } else {
+            false
+        }
 
         return EffectSupport(
             loudness = loudness,

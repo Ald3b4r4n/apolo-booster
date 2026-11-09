@@ -12,3 +12,4 @@ keystore.properties
 .DS_Store
 build-debug.log
 build-release.log
+.research/
