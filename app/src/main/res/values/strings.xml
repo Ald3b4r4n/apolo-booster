@@ -33,6 +33,13 @@
     <string name="home_turbo_hint">Tenta usar passos de volume ocultos do aparelho. Pode não funcionar em todos os modelos.</string>
 
     <string name="eq_title">Equalizador</string>
+    <string name="eq_subtitle">Ajuste a curva por bandas</string>
+    <string name="eq_enable">Usar equalizador</string>
+    <string name="eq_status_off">Módulo desligado. Ligue para usar a curva selecionada.</string>
+    <string name="eq_status_boost_off">Ative o boost na aba Boost para usar a curva.</string>
+    <string name="eq_status_flat">Curva plana. Escolha um preset ou ajuste uma banda.</string>
+    <string name="eq_status_enabled">Efeito habilitado no Android.</string>
+    <string name="eq_status_unavailable">O app não conseguiu ativar ou controlar o efeito. Confira o Diagnóstico.</string>
     <string name="eq_bass">Reforço de graves</string>
     <string name="eq_preset_flat">Plano</string>
     <string name="eq_preset_bass">Graves</string>

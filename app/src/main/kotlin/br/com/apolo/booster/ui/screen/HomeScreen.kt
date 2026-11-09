@@ -280,7 +280,7 @@ fun HomeScreen(
 }
 
 @Composable
-private fun ModuleRow(
+internal fun ModuleRow(
     label: String,
     hint: String,
     checked: Boolean,

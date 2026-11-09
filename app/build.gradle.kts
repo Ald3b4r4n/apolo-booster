@@ -6,8 +6,8 @@ plugins {
 }
 
 // Versao controlada por propriedade (-Papolo.versionName=0.1.0) para o CI usar a tag.
-val apoloVersionName = providers.gradleProperty("apolo.versionName").orElse("0.4.0").get()
-val apoloVersionCode = providers.gradleProperty("apolo.versionCode").orElse("400").get().toInt()
+val apoloVersionName = providers.gradleProperty("apolo.versionName").orElse("0.4.1").get()
+val apoloVersionCode = providers.gradleProperty("apolo.versionCode").orElse("401").get().toInt()
 
 val keystorePropsFile = rootProject.file("keystore.properties")
 val keystoreProps = Properties().apply {

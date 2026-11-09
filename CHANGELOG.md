@@ -3,6 +3,12 @@
 Todas as versões publicadas deste projeto seguem [SemVer](https://semver.org/lang/pt-BR/).
 Cada release do GitHub carrega o APK assinado e o `SHA256SUMS.txt`.
 
+## [0.4.1] — 2026-11-09
+
+### Corrigido
+
+- A aba Equalizador ganhou um controle para ligar o módulo e mostra se o Android habilitou o efeito.
+
 ## [0.4.0] — 2026-11-09
 
 ### Corrigido

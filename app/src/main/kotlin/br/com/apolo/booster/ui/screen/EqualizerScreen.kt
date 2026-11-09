@@ -39,6 +39,7 @@ private val eqPresetLabels = listOf(
 @Composable
 fun EqualizerScreen(
     state: BoostState,
+    onUseEqualizerChange: (Boolean) -> Unit,
     onPreset: (Int) -> Unit,
     onBandChange: (Int, Int) -> Unit,
     onBassChange: (Int) -> Unit,
@@ -53,7 +54,7 @@ fun EqualizerScreen(
     ) {
         ScreenHeader(
             title = stringResource(R.string.eq_title),
-            subtitle = "Curva aplicada ao mix de saída",
+            subtitle = stringResource(R.string.eq_subtitle),
         )
 
         if (!state.support.equalizer) {
@@ -65,6 +66,23 @@ fun EqualizerScreen(
                 )
             }
         } else {
+            SectionCard {
+                val status = when {
+                    !state.useEqualizer -> R.string.eq_status_off
+                    !state.enabled -> R.string.eq_status_boost_off
+                    state.eqGains.all { it == 0 } -> R.string.eq_status_flat
+                    state.telemetry.equalizerEnabled && state.telemetry.equalizerControl ->
+                        R.string.eq_status_enabled
+                    else -> R.string.eq_status_unavailable
+                }
+                ModuleRow(
+                    label = stringResource(R.string.eq_enable),
+                    hint = stringResource(status),
+                    checked = state.useEqualizer,
+                    onCheckedChange = onUseEqualizerChange,
+                )
+            }
+
             Row(
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
