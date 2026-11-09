@@ -30,10 +30,16 @@ class EqPresetsTest {
 
     @Test
     fun `todos os ganhos ficam na faixa de doze dB`() {
-        for (preset in 0..4) {
+        for (preset in EqPresets.FLAT..EqPresets.MUSIC) {
             EqPresets.gains(preset, 8).forEach { gain ->
                 assertTrue("gain $gain fora da faixa", gain in -12..12)
             }
         }
+    }
+
+    @Test
+    fun `heavy metal preserva os pontos de referencia e interpola por frequencia`() {
+        val centers = listOf(60, 117, 230, 910, 3600, 14000)
+        assertEquals(listOf(4, 1, -2, 2, 4, 1), EqPresets.gains(EqPresets.HEAVY_METAL, centers.size, centers))
     }
 }

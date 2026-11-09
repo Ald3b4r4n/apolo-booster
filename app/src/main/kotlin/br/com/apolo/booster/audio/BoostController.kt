@@ -93,7 +93,12 @@ object BoostController {
 
         val support = EffectProbe.probe()
         val prefs = prefs()
-        val savedEq = readEq(prefs, support.eqBands)
+        val eqPreset = prefs.getInt(KEY_EQ_PRESET, EqPresets.FLAT)
+        val savedEq = if (eqPreset in EqPresets.FLAT..EqPresets.MUSIC) {
+            EqPresets.gains(eqPreset, support.eqBands, support.eqCenterFreqs)
+        } else {
+            readEq(prefs, support.eqBands)
+        }
         val manager = audioManager()
 
         _state.value = BoostState(
@@ -101,7 +106,7 @@ object BoostController {
             percent = prefs.getInt(KEY_PERCENT, GainMath.DEFAULT_PERCENT)
                 .coerceIn(GainMath.MIN_PERCENT, GainMath.MAX_PERCENT),
             eqGains = savedEq,
-            eqPreset = prefs.getInt(KEY_EQ_PRESET, EqPresets.FLAT),
+            eqPreset = eqPreset,
             bassStrength = prefs.getInt(KEY_BASS, 0).coerceIn(0, 100),
             maximizeVolume = prefs.getBoolean(KEY_MAXIMIZE, true),
             useLoudness = prefs.getBoolean(KEY_USE_LOUDNESS, true),
@@ -281,6 +286,8 @@ object BoostController {
             appendLine("Equalizer habilitado: ${status(t.equalizerEnabled)}")
             appendLine("Equalizer configurado (dB): ${st.eqGains.joinToString(", ")}")
             appendLine("BassBoost habilitado: ${status(t.bassEnabled)}")
+            appendLine("BassBoost com controle: ${status(t.bassControl)}")
+            appendLine("BassBoost intensidade informada pelo Android (0..1000): ${t.bassRoundedStrength ?: "—"}")
             appendLine("BassBoost configurado: ${st.bassStrength}%")
             appendLine("Música ativa: ${status(t.musicActive)}")
             appendLine("Saídas disponíveis: ${t.outputRoute}")
@@ -409,6 +416,8 @@ object BoostController {
                     equalizerEnabled = enabledOf(eq),
                     bassControl = controlOf(bass),
                     bassEnabled = enabledOf(bass),
+                    bassRoundedStrength = bass?.let { runCatching { it.roundedStrength.toInt() }.getOrNull() },
+                    bassStrengthSupported = bass?.let { runCatching { it.strengthSupported }.getOrNull() },
                     musicActive = runCatching { audioManager().isMusicActive }.getOrDefault(false),
                     outputRoute = outputRoute(),
                     lastEvent = event ?: st.telemetry.lastEvent,

@@ -41,11 +41,20 @@
     <string name="eq_status_enabled">Efeito habilitado no Android.</string>
     <string name="eq_status_unavailable">O app não conseguiu ativar ou controlar o efeito. Confira o Diagnóstico.</string>
     <string name="eq_bass">Reforço de graves</string>
+    <string name="eq_bass_enable">Usar reforço de graves</string>
+    <string name="eq_bass_off">Ligue o módulo para usar a intensidade selecionada.</string>
+    <string name="eq_bass_zero">Aumente a intensidade para ativar o efeito.</string>
+    <string name="eq_bass_fixed">Este aparelho usa uma intensidade fixa acima de 0%.</string>
+    <string name="eq_bass_unavailable">Reforço nativo indisponível. O preset Graves usa o equalizador.</string>
     <string name="eq_preset_flat">Plano</string>
     <string name="eq_preset_bass">Graves</string>
     <string name="eq_preset_vocal">Voz</string>
     <string name="eq_preset_rock">Rock</string>
     <string name="eq_preset_electronic">Eletrônico</string>
+    <string name="eq_preset_heavy_metal">Heavy Metal</string>
+    <string name="eq_preset_music">Música</string>
+    <string name="about_developer">Desenvolvedor</string>
+    <string name="about_developer_name">Antônio Rafael</string>
 
     <string name="diag_title">Diagnóstico</string>
     <string name="diag_subtitle">O que este aparelho suporta de verdade</string>

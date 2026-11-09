@@ -41,13 +41,14 @@ class GainMathTest {
     }
 
     @Test
-    fun `ganho maximo de banda vira o teto nativo`() {
-        assertEquals(1500, GainMath.bandGainToLevel(12, -1500, 1500).toInt())
+    fun `ganho em dB respeita o limite nativo`() {
+        assertEquals(1200, GainMath.bandGainToLevel(12, -1500, 1500).toInt())
+        assertEquals(900, GainMath.bandGainToLevel(12, -900, 900).toInt())
     }
 
     @Test
     fun `ganho negativo de banda vira nivel negativo`() {
-        assertEquals(-750, GainMath.bandGainToLevel(-6, -1500, 1500).toInt())
+        assertEquals(-600, GainMath.bandGainToLevel(-6, -1500, 1500).toInt())
     }
 
     @Test

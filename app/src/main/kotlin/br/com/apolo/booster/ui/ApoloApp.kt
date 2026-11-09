@@ -186,9 +186,10 @@ private fun ScreenHost(
         ApoloDestination.Equalizer -> EqualizerScreen(
             state = state,
             onUseEqualizerChange = BoostController::setUseEqualizer,
+            onUseBassChange = BoostController::setUseBass,
             onPreset = { preset ->
                 BoostController.setEqGains(
-                    EqPresets.gains(preset, state.support.eqBands),
+                    EqPresets.gains(preset, state.support.eqBands, state.support.eqCenterFreqs),
                     preset,
                 )
             },

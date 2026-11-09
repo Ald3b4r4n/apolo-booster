@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import br.com.apolo.booster.R
 import br.com.apolo.booster.audio.BoostState
+import br.com.apolo.booster.audio.EqPresets
 import br.com.apolo.booster.ui.components.ScreenHeader
 import br.com.apolo.booster.ui.components.SectionCard
 import br.com.apolo.booster.ui.theme.Gold
@@ -29,17 +30,20 @@ import java.util.Locale
 import kotlin.math.roundToInt
 
 private val eqPresetLabels = listOf(
-    R.string.eq_preset_flat,
-    R.string.eq_preset_bass,
-    R.string.eq_preset_vocal,
-    R.string.eq_preset_rock,
-    R.string.eq_preset_electronic,
+    EqPresets.FLAT to R.string.eq_preset_flat,
+    EqPresets.MUSIC to R.string.eq_preset_music,
+    EqPresets.HEAVY_METAL to R.string.eq_preset_heavy_metal,
+    EqPresets.ROCK to R.string.eq_preset_rock,
+    EqPresets.BASS to R.string.eq_preset_bass,
+    EqPresets.VOCAL to R.string.eq_preset_vocal,
+    EqPresets.ELECTRONIC to R.string.eq_preset_electronic,
 )
 
 @Composable
 fun EqualizerScreen(
     state: BoostState,
     onUseEqualizerChange: (Boolean) -> Unit,
+    onUseBassChange: (Boolean) -> Unit,
     onPreset: (Int) -> Unit,
     onBandChange: (Int, Int) -> Unit,
     onBassChange: (Int) -> Unit,
@@ -87,10 +91,10 @@ fun EqualizerScreen(
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                eqPresetLabels.forEachIndexed { index, labelRes ->
+                eqPresetLabels.forEach { (preset, labelRes) ->
                     FilterChip(
-                        selected = state.eqPreset == index,
-                        onClick = { onPreset(index) },
+                        selected = state.eqPreset == preset,
+                        onClick = { onPreset(preset) },
                         label = { Text(stringResource(labelRes)) },
                     )
                 }
@@ -109,17 +113,25 @@ fun EqualizerScreen(
         }
 
         SectionCard(title = stringResource(R.string.eq_bass)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                Text(
-                    text = if (state.support.bassBoost) "${state.bassStrength}%" else "indisponível",
-                    style = MaterialTheme.typography.titleMedium,
-                    color = if (state.support.bassBoost) Gold else TextMuted,
+            if (state.support.bassBoost) {
+                val status = when {
+                    !state.useBass -> R.string.eq_bass_off
+                    !state.enabled -> R.string.eq_status_boost_off
+                    state.bassStrength == 0 -> R.string.eq_bass_zero
+                    !state.telemetry.bassEnabled || !state.telemetry.bassControl -> R.string.eq_status_unavailable
+                    state.telemetry.bassStrengthSupported == false -> R.string.eq_bass_fixed
+                    else -> R.string.eq_status_enabled
+                }
+                ModuleRow(
+                    label = stringResource(R.string.eq_bass_enable),
+                    hint = stringResource(status),
+                    checked = state.useBass,
+                    onCheckedChange = onUseBassChange,
                 )
+            } else {
+                Text(stringResource(R.string.eq_bass_unavailable), color = TextMuted)
             }
+            Text("${state.bassStrength}%", style = MaterialTheme.typography.titleMedium, color = Gold)
             Slider(
                 value = state.bassStrength.toFloat(),
                 onValueChange = { onBassChange(it.roundToInt()) },

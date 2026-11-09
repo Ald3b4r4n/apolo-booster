@@ -16,6 +16,8 @@ data class BoostTelemetry(
     val equalizerEnabled: Boolean = false,
     val bassControl: Boolean = false,
     val bassEnabled: Boolean = false,
+    val bassRoundedStrength: Int? = null,
+    val bassStrengthSupported: Boolean? = null,
     val musicActive: Boolean = false,
     val outputRoute: String = "-",
     val reattachCount: Int = 0,

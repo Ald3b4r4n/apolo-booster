@@ -32,9 +32,8 @@ object GainMath {
 
     /** Converte um ganho de banda (-12..+12 dB) para o nivel nativo do equalizador. */
     fun bandGainToLevel(gainDb: Int, minLevel: Short, maxLevel: Short): Short {
-        val normalized = (gainDb / 12f).coerceIn(-1f, 1f)
-        val level = if (normalized >= 0f) normalized * maxLevel else normalized * -minLevel
-        return level.roundToInt().toShort()
+        val level = gainDb.coerceIn(-12, 12) * 100
+        return level.coerceIn(minLevel.toInt(), maxLevel.toInt()).toShort()
     }
 
     /** Percentual de 0..100 do volume do sistema, para a barra da UI. */

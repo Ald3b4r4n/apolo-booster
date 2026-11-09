@@ -3,6 +3,12 @@
 Todas as versões publicadas deste projeto seguem [SemVer](https://semver.org/lang/pt-BR/).
 Cada release do GitHub carrega o APK assinado e o `SHA256SUMS.txt`.
 
+## [0.5.0] — 2026-11-09
+
+- Novos presets Música e Heavy Metal. As curvas usam as frequências centrais do aparelho.
+- O reforço de graves pode ser ligado na aba Equalizador. O diagnóstico mostra a intensidade informada pelo Android.
+- A tela Sobre apresenta o desenvolvedor Antônio Rafael, com foto e link para o site pessoal.
+
 ## [0.4.1] — 2026-11-09
 
 ### Corrigido
