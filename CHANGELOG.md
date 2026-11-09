@@ -3,6 +3,14 @@
 Todas as versões publicadas deste projeto seguem [SemVer](https://semver.org/lang/pt-BR/).
 Cada release do GitHub carrega o APK assinado e o `SHA256SUMS.txt`.
 
+## [0.4.0] — 2026-11-09
+
+### Corrigido
+
+- Ajustar o ganho, o equalizador ou os graves respeita o estado de cada módulo.
+- Efeitos com ganho zero ou equalização plana ficam desativados.
+- O diagnóstico identifica o ganho alvo e as saídas disponíveis.
+
 ## [0.3.0] — 2026-11-09
 
 ### Adicionado
