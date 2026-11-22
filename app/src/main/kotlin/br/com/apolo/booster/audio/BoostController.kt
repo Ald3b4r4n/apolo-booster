@@ -65,23 +65,28 @@ object BoostController {
     private var equalizer: Equalizer? = null
     private var bassBoost: BassBoost? = null
     private var volumeBeforeTurbo = -1
+    private var musicWasActive = false
+    private var lastRecoveryMs = 0L
+    private var bypassActive = false
+    private var eqMakeupMb = 0
 
     private val handler = Handler(Looper.getMainLooper())
     private val watchdog = object : Runnable {
         override fun run() {
-            if (!_state.value.enabled) return
+            if (!_state.value.enabled || bypassActive) return
             val active = runCatching { audioManager().isMusicActive }.getOrDefault(false)
-            val previous = _state.value.telemetry.musicActive
-            update {
-                it.copy(
-                    telemetry = it.telemetry.copy(
-                        musicActive = active,
-                        outputRoute = outputRoute(),
-                    ),
-                )
-            }
-            if (active && !previous) {
-                reattach("música iniciou")
+            val resumed = active && !musicWasActive
+            musicWasActive = active
+            refreshTelemetry()
+            if (active && (resumed || !effectsHealthy())) {
+                // Reapply in place first. Recreating healthy effects on every resume
+                // interrupts the chain and can invalidate the OEM's output binding.
+                applyProcessing()
+                val now = android.os.SystemClock.elapsedRealtime()
+                if (!effectsHealthy() && now - lastRecoveryMs >= 10_000L) {
+                    lastRecoveryMs = now
+                    reattach("recuperação dos efeitos")
+                }
             }
             handler.postDelayed(this, WATCHDOG_MS)
         }
@@ -127,6 +132,8 @@ object BoostController {
     }
 
     fun setEnabled(enabled: Boolean) {
+        bypassActive = false
+        handler.removeCallbacks(endBypass)
         update { it.copy(enabled = enabled, error = null) }
         prefs().edit().putBoolean(KEY_ENABLED, enabled).apply()
         if (enabled) {
@@ -155,7 +162,10 @@ object BoostController {
             .putString(KEY_EQ, normalized.joinToString(","))
             .putInt(KEY_EQ_PRESET, preset)
             .apply()
-        if (_state.value.enabled) applyEqualizer()
+        if (_state.value.enabled) {
+            applyEqualizer()
+            applyGain()
+        }
     }
 
     fun setBandGain(band: Int, gainDb: Int) {
@@ -190,6 +200,8 @@ object BoostController {
     /** Desliga tudo por alguns segundos para comparação auditiva honesta. */
     fun compareBypass(seconds: Int = 5) {
         if (!_state.value.enabled) return
+        bypassActive = true
+        handler.removeCallbacks(endBypass)
         handler.removeCallbacks(watchdog)
         releaseEffects()
         update {
@@ -202,12 +214,16 @@ object BoostController {
                 ),
             )
         }
-        handler.postDelayed({
-            if (_state.value.enabled) {
-                applyAll()
-                handler.postDelayed(watchdog, WATCHDOG_MS)
-            }
-        }, seconds * 1_000L)
+        handler.postDelayed(endBypass, seconds * 1_000L)
+    }
+
+    private val endBypass = Runnable {
+        bypassActive = false
+        if (_state.value.enabled) {
+            applyAll()
+            handler.removeCallbacks(watchdog)
+            handler.postDelayed(watchdog, WATCHDOG_MS)
+        }
     }
 
     fun setMaximizeVolume(enabled: Boolean) {
@@ -242,7 +258,7 @@ object BoostController {
 
     /** Libera e recria a cadeia. Util quando a música já estava tocando antes do boost. */
     fun reattach(reason: String) {
-        if (!_state.value.enabled) return
+        if (!_state.value.enabled || bypassActive) return
         releaseEffects()
         update {
             it.copy(
@@ -252,7 +268,8 @@ object BoostController {
                 ),
             )
         }
-        applyAll()
+        applyProcessing()
+        refreshTelemetry(reason)
     }
 
     fun refreshSystemVolume() {
@@ -281,6 +298,7 @@ object BoostController {
             appendLine("Loudness com controle: ${status(t.loudnessControl)}")
             appendLine("Loudness habilitado: ${status(t.loudnessEnabled)}")
             appendLine("Loudness alvo: ${t.loudnessTargetMb} mB")
+            appendLine("Compensação estimada do EQ: $eqMakeupMb mB (incluída no alvo)")
             appendLine("Loudness status do set: ${t.loudnessSetStatus}")
             appendLine("Equalizer com controle: ${status(t.equalizerControl)}")
             appendLine("Equalizer habilitado: ${status(t.equalizerEnabled)}")
@@ -318,10 +336,26 @@ object BoostController {
             return
         }
         if (st.maximizeVolume) maximizeSystemVolume()
-        if (st.useLoudness) applyGain()
-        if (st.useEqualizer) applyEqualizer()
-        if (st.useBass) applyBass()
+        applyProcessing()
         refreshTelemetry("cadeia aplicada")
+    }
+
+    private fun applyProcessing() {
+        if (bypassActive) return
+        applyEqualizer()
+        applyBass()
+        applyGain()
+    }
+
+    private fun effectsHealthy(): Boolean {
+        val st = _state.value
+        val loudnessOk = !st.useLoudness || !st.support.loudness ||
+            st.percent == GainMath.MIN_PERCENT || (controlOf(loudness) && enabledOf(loudness))
+        val eqOk = !st.useEqualizer || !st.support.equalizer || st.eqGains.all { it == 0 } ||
+            (controlOf(equalizer) && enabledOf(equalizer))
+        val bassOk = !st.useBass || !st.support.bassBoost || st.bassStrength == 0 ||
+            (controlOf(bassBoost) && enabledOf(bassBoost))
+        return loudnessOk && eqOk && bassOk
     }
 
     private fun maximizeSystemVolume() {
@@ -334,9 +368,20 @@ object BoostController {
 
     private fun applyGain() {
         val st = _state.value
-        if (!st.enabled || !st.useLoudness || !st.support.loudness) return
+        if (bypassActive || !st.enabled || !st.useLoudness || !st.support.loudness) return
+        val eq = equalizer
+        val eqLevels = if (eq != null && enabledOf(eq) && controlOf(eq)) {
+            runCatching {
+                (0 until eq.numberOfBands).map { eq.getBandLevel(it.toShort()).toInt() }
+            }.getOrDefault(emptyList())
+        } else emptyList()
+        val baseGainMb = GainMath.percentToMillibels(st.percent)
+        eqMakeupMb = minOf(
+            GainMath.equalizerMakeupMb(st.percent, eqLevels),
+            GainMath.MAX_GAIN_MB - baseGainMb,
+        )
         val millibels = GainMath.clampToDevice(
-            GainMath.percentToMillibels(st.percent),
+            baseGainMb + eqMakeupMb,
             GainMath.MAX_GAIN_MB,
         )
         if (millibels == 0) {
@@ -362,7 +407,7 @@ object BoostController {
 
     private fun applyEqualizer() {
         val st = _state.value
-        if (!st.enabled || !st.useEqualizer || !st.support.equalizer) return
+        if (bypassActive || !st.enabled || !st.useEqualizer || !st.support.equalizer) return
         if (st.eqGains.all { it == 0 }) {
             runCatching { equalizer?.setEnabled(false) }
             refreshTelemetry()
@@ -385,7 +430,7 @@ object BoostController {
 
     private fun applyBass() {
         val st = _state.value
-        if (!st.enabled || !st.useBass || !st.support.bassBoost) return
+        if (bypassActive || !st.enabled || !st.useBass || !st.support.bassBoost) return
         if (st.bassStrength == 0) {
             runCatching { bassBoost?.setEnabled(false) }
             refreshTelemetry()
@@ -454,6 +499,7 @@ object BoostController {
         loudness = null
         equalizer = null
         bassBoost = null
+        eqMakeupMb = 0
     }
 
     private fun readEq(prefs: SharedPreferences, bands: Int): List<Int> {

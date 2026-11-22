@@ -40,6 +40,6 @@ class EqPresetsTest {
     @Test
     fun `heavy metal preserva os pontos de referencia e interpola por frequencia`() {
         val centers = listOf(60, 117, 230, 910, 3600, 14000)
-        assertEquals(listOf(4, 1, -2, 2, 4, 1), EqPresets.gains(EqPresets.HEAVY_METAL, centers.size, centers))
+        assertEquals(listOf(2, 1, -1, 1, 2, 0), EqPresets.gains(EqPresets.HEAVY_METAL, centers.size, centers))
     }
 }

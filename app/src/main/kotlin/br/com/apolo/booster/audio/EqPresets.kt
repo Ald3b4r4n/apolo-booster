@@ -19,12 +19,12 @@ object EqPresets {
     private val frequencies = listOf(60, 230, 910, 3600, 14000)
     private val reference = listOf(
         listOf(0, 0, 0, 0, 0),
-        listOf(5, 3, 0, 0, 0),
-        listOf(-3, -1, 3, 4, 1),
-        listOf(3, 1, 1, 3, 2),
-        listOf(5, 2, -1, 2, 3),
-        listOf(4, -2, 2, 4, 1),
-        listOf(2, 0, 0, 1, 2),
+        listOf(3, 1, 0, 0, 0),
+        listOf(-1, 0, 2, 2, 0),
+        listOf(2, 0, 1, 2, 1),
+        listOf(3, 1, 0, 1, 2),
+        listOf(2, -1, 1, 2, 0),
+        listOf(1, 0, 0, 1, 1),
     )
 
     fun gains(preset: Int, bands: Int, centers: List<Int> = emptyList()): List<Int> {

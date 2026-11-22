@@ -3,6 +3,13 @@
 Todas as versões publicadas deste projeto seguem [SemVer](https://semver.org/lang/pt-BR/).
 Cada release do GitHub carrega o APK assinado e o `SHA256SUMS.txt`.
 
+## [0.6.0] — 2026-11-22
+
+- O monitor verifica os efeitos durante a reprodução, reaplica a configuração ao retomar e recupera cadeias indisponíveis com intervalo entre tentativas.
+- Pausar e retomar preserva os efeitos saudáveis. A comparação temporária cancela retornos antigos ao desligar o boost.
+- Presets musicais com ganhos mais moderados e compensação estimada do equalizador no Loudness, limitada a 6 dB e ao teto total de 20 dB.
+- O diagnóstico mostra a compensação incluída no ganho alvo. O resultado acústico depende do processamento do aparelho.
+
 ## [0.5.0] — 2026-11-09
 
 - Novos presets Música e Heavy Metal. As curvas usam as frequências centrais do aparelho.

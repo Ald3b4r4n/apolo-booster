@@ -25,6 +25,14 @@ object GainMath {
 
     fun percentToMillibels(percent: Int): Int = (percentToDb(percent) * 100f).roundToInt()
 
+    /** Estimate EQ headroom loss from its actual positive band levels.
+     * OEM correction varies. Keep makeup bounded and preserve the 100% bypass.
+     */
+    fun equalizerMakeupMb(percent: Int, bandLevelsMb: List<Int>): Int {
+        if (percent <= MIN_PERCENT) return 0
+        return (bandLevelsMb.maxOrNull() ?: 0).coerceIn(0, 600)
+    }
+
     fun clampToDevice(requestedMb: Int, deviceMaxMb: Int): Int {
         val ceiling = minOf(deviceMaxMb, MAX_GAIN_MB).coerceAtLeast(0)
         return requestedMb.coerceIn(0, ceiling)

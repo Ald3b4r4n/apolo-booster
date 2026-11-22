@@ -7,6 +7,17 @@ import org.junit.Test
 class GainMathTest {
 
     @Test
+    fun `compensacao preserva bypass e respeita teto total`() {
+        assertEquals(0, GainMath.equalizerMakeupMb(100, listOf(1200)))
+        assertEquals(0, GainMath.equalizerMakeupMb(150, listOf(-300, -100)))
+        assertEquals(0, GainMath.equalizerMakeupMb(150, emptyList()))
+        assertEquals(300, GainMath.equalizerMakeupMb(150, listOf(-100, 300, 100)))
+        assertEquals(600, GainMath.equalizerMakeupMb(150, listOf(1200)))
+        val total = GainMath.percentToMillibels(290) + GainMath.equalizerMakeupMb(290, listOf(600))
+        assertEquals(2000, GainMath.clampToDevice(total, GainMath.MAX_GAIN_MB))
+    }
+
+    @Test
     fun `100 por cento equivale a zero dB`() {
         assertEquals(0f, GainMath.percentToDb(100), 0.001f)
     }
